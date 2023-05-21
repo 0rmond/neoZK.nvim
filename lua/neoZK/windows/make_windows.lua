@@ -1,7 +1,5 @@
---[[ functions which involve constructing windows to display or interact with information
-
-1. Measure the dimensions of the terminal.
-2. Calculate the dimensions that the container will be as a fraction of the terminal's dimensions.
+--[[ 
+-- Functions which involve constructing windows to display or interact with information.
 --]]
 
 local utils = require("neoZK.utils")
@@ -30,7 +28,7 @@ local PREVIEW = {
     title = "preview",
     borders = {'╭','─','╮','│',' ','│','╰','─','╯'},
     border_width = 1,
-    space_priority = "primary",
+    minimum_content_width = 20,
 }
 
 local RESULTS = {
@@ -41,8 +39,8 @@ local RESULTS = {
     space_priority = "secondary",
 }
 
-local PROMPT = {
-    title = "search",
+local SEARCHED_TAGS = {
+    title = "searched tags",
     borders = {'╭','─','╮','│',' ','│','╰','─','╯'},
     border_width = 1,
     space_priority = "tertiary",
@@ -56,48 +54,29 @@ local SEARCH = {
 }
 
 local GOLDEN_RATIO = (1 + math.sqrt(5)) / 2
----subdivides a rectangle into two smaller rectangles according to the golden ratio.
+---Subdivides a rectangle into two smaller rectangles according to the golden ratio.
 -- @global_param: GOLDEN_RATIO
 -- @param container_dimensions: {width,height} of rectangle to subdivide.
+-- @param subdivide_direction: "h" or "v" - direction to subdivide the rectangle in.
 -- @returns: width, height of {{larger subdiv}, {smaller subdiv}}
-local function golden_divide(container_dimensions)
+local function golden_divide(container_dimensions, subdivide_direction)
     local width, height = unpack(container_dimensions)
     local largest_dim = math.max(width, height)
 
     local larger_subdiv = math.floor(0.5 + largest_dim / GOLDEN_RATIO )
     local smaller_subdiv = math.floor(0.5 + largest_dim / GOLDEN_RATIO^2 )
 
-    if width > height then
+    if subdivide_direction == "h" then
         return {{larger_subdiv, height}, {smaller_subdiv, height}}
-    else return {{width, larger_subdiv}, {width, smaller_subdiv}}
+    else --[[ if subdivide_direction is vertical then --]]
+        return {{width, larger_subdiv}, {width, smaller_subdiv}}
     end
 end
 
---- cba to make a better sorting function rn
-local function sort_by_priority(windows)
-    local primary = fun.filter(function(win) return win.space_priority == "primary" and win end, windows):totable()
-    local secondary = fun.filter(function(win) return win.space_priority == "secondary" and win end, windows):totable()
-    local tertiary = fun.filter(function(win) return win.space_priority == "tertiary" and win end, windows):totable()
+local terminal_dimensions = calculate_terminal_dimensions()
+local container_dimensions = calculate_container_dimensions(0.8, terminal_dimensions)
 
-    return utils.join(tertiary, utils.join(primary, secondary))
-end
-
-local function subdivide_container_into_windows(windows, container_dimensions, ...)
-    -- for each windows
-    --  golden divide the window into two parts: large part = window dimension
-    --      golden divide smaller window
-    if #windows == 0 then return {...} end
-
-    local subdivided_container = golden_divide(container_dimensions)
-    local remaining_subdivides = {unpack(windows, 2, #windows)}
-    local container_to_further_subdivide =  subdivided_container[1]
-    return subdivide_container_into_windows(remaining_subdivides, container_to_further_subdivide, subdivided_container, ...)
-end
-
-local term_dim = calculate_terminal_dimensions()
-local cont_dim = calculate_container_dimensions(0.8, term_dim)
-
-local windows = {PREVIEW, PROMPT, RESULTS, SEARCH}
-local sorted_wins = sort_by_priority(windows)
-test = subdivide_container_into_windows(sorted_wins, cont_dim)
-vim.print(test)
+local preview_window, other_windows = golden_divide(container_dimensions, "h")
+local results_window, tags_and_search_windows = golden_divide(container_dimensions, "v")
+vim.print(container_dimensions)
+vim.print(preview_window)
