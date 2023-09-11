@@ -1,12 +1,5 @@
-\documentclass{zettlekasten}
-\when{2023 June 22    20:36:26}
-\what{Vast and Roc}
-%tags zhuang-zi chapter-one Roc Vast
-
-\begin{document}
 In the darkness of the north there is a fish, whose name is Vast.
 This fish is enormous, I don’t know how many thousand miles long.
 It also changes into a bird, whose name is Roc, and the roc’s back is I don’t know how many thousand miles across.
 When it rises in the air, its wings are like the clouds of Heaven.
 When the seas move, this bird too travels to the south darkness, the darkness known as the Pool of Heaven.
-\end{document}

@@ -1,0 +1,4 @@
+\documentclass{zettlekasten}
+\when{2023 June 22    20:36:26}
+\what{Vast and Roc}
+%tags zhuang-zi chapter-one Roc Vast
